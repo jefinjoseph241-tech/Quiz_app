@@ -1,0 +1,58 @@
+{% extends 'base.html' %}
+{% block content %}
+<section class="panel admin-panel">
+    <h2>{% if question %}Edit Question{% else %}Add a New Question{% endif %}</h2>
+    <form method="post" class="admin-form">
+        <label>
+            Question prompt
+            <textarea name="prompt" rows="4" placeholder="Enter the question text" required>{% if question %}{{ question.prompt }}{% endif %}</textarea>
+        </label>
+        <label>
+            Level
+            <select name="level" required>
+                <option value="beginner" {% if question and question.level == 'beginner' %}selected{% endif %}>Beginner</option>
+                <option value="intermediate" {% if question and question.level == 'intermediate' %}selected{% endif %}>Intermediate</option>
+                <option value="advanced" {% if question and question.level == 'advanced' %}selected{% endif %}>Advanced</option>
+            </select>
+        </label>
+        <label>
+            Topic
+            <select name="topic" required>
+                {% for t in topics %}
+                    <option value="{{ t }}" {% if question and question.topic == t %}selected{% endif %}>{{ t|capitalize }}</option>
+                {% endfor %}
+            </select>
+        </label>
+        <label>
+            Option A
+            <input type="text" name="option_a" placeholder="Answer option A" required value="{% if question %}{{ question.option_a }}{% endif %}" />
+        </label>
+        <label>
+            Option B
+            <input type="text" name="option_b" placeholder="Answer option B" required value="{% if question %}{{ question.option_b }}{% endif %}" />
+        </label>
+        <label>
+            Option C
+            <input type="text" name="option_c" placeholder="Answer option C" required value="{% if question %}{{ question.option_c }}{% endif %}" />
+        </label>
+        <label>
+            Option D
+            <input type="text" name="option_d" placeholder="Answer option D" required value="{% if question %}{{ question.option_d }}{% endif %}" />
+        </label>
+        <label>
+            Correct option
+            <select name="correct_option" required>
+                <option value="">Choose the correct answer</option>
+                <option value="A" {% if question and question.correct_option == 'A' %}selected{% endif %}>A</option>
+                <option value="B" {% if question and question.correct_option == 'B' %}selected{% endif %}>B</option>
+                <option value="C" {% if question and question.correct_option == 'C' %}selected{% endif %}>C</option>
+                <option value="D" {% if question and question.correct_option == 'D' %}selected{% endif %}>D</option>
+            </select>
+        </label>
+        <div class="form-actions">
+            <button class="button button-primary" type="submit">{% if question %}Save Changes{% else %}Add Question{% endif %}</button>
+            <a class="button button-ghost" href="{{ url_for('admin') }}">Cancel</a>
+        </div>
+    </form>
+</section>
+{% endblock %}

@@ -1,0 +1,19 @@
+{% extends 'base.html' %}
+{% block content %}
+<section class="panel auth-panel">
+    <h2>Admin Login</h2>
+    <p>Use your email address and the admin password to login.</p>
+    <form method="post">
+        <label>
+            Admin Email
+            <input type="email" name="email" placeholder="admin@example.com" required />
+        </label>
+        <label>
+            Admin Password
+            <input type="password" name="password" placeholder="Enter admin password" required />
+        </label>
+        <button class="button button-primary" type="submit">Login</button>
+    </form>
+    <p class="small-text">Enter your email and the admin password to log in directly as an admin user.</p>
+</section>
+{% endblock %}

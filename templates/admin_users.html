@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+{% block content %}
+<section class="panel admin-panel">
+    <h2>Registered Users</h2>
+    <div class="question-table">
+        <div class="table-row header-row">
+            <span>ID</span>
+            <span>Username</span>
+            <span>Admin</span>
+            <span>Created</span>
+            <span>Action</span>
+        </div>
+        {% for u in users %}
+        <div class="table-row">
+            <span>{{ u.id }}</span>
+            <span>{{ u.username }}</span>
+            <span>{{ 'Yes' if u.is_admin else 'No' }}</span>
+            <span>{{ u.created_at }}</span>
+            <span>
+                <a class="button button-ghost small-button" href="{{ url_for('admin_reset_password', user_id=u.id) }}">Reset PW</a>
+                {% if u.id != user.id %}
+                <a class="button button-danger small-button" href="{{ url_for('admin_delete_user', user_id=u.id) }}" onclick="return confirm('Delete this user?');">Delete</a>
+                {% endif %}
+            </span>
+        </div>
+        {% endfor %}
+    </div>
+</section>
+{% endblock %}

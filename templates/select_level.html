@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+{% block content %}
+<section class="panel auth-panel">
+    <h2>Select Quiz Level</h2>
+    <p>Choose a difficulty level to start the quiz.</p>
+    <form method="get" action="{{ url_for('quiz') }}">
+        <label>
+            Topic
+            <select name="topic">
+                <option value="">All</option>
+                {% for t in topics %}
+                    <option value="{{ t }}">{{ t|capitalize }}</option>
+                {% endfor %}
+            </select>
+        </label>
+        <div class="level-grid">
+            <button class="button button-primary" name="selection" value="beginner:10">Beginner (10 Qs)</button>
+            <button class="button button-secondary" name="selection" value="intermediate:20">Intermediate (20 Qs)</button>
+            <button class="button button-ghost" name="selection" value="advanced:30">Advanced (30 Qs)</button>
+        </div>
+    </form>
+</section>
+{% endblock %}

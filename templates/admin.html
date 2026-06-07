@@ -1,0 +1,76 @@
+{% extends 'base.html' %}
+{% block content %}
+<section class="panel admin-panel">
+    <div class="admin-header">
+        <div>
+            <h2>Admin Dashboard</h2>
+            <p>Manage quiz questions and update content for your users.</p>
+        </div>
+        <div style="display:flex; gap:0.5rem; flex-wrap: wrap;">
+            <a class="button button-primary" href="{{ url_for('admin_add') }}">Add New Question</a>
+            <form method="post" action="{{ url_for('admin_import_topic_questions') }}" style="display:inline; margin:0;">
+                <button class="button button-secondary" type="submit">Import Topic Questions</button>
+            </form>
+            <form method="post" action="{{ url_for('admin_clean_prompts') }}" style="display:inline; margin:0;">
+                <button class="button button-secondary" type="submit">Clean Question Tags</button>
+            </form>
+            <a class="button button-secondary" href="{{ url_for('admin_users') }}">Users</a>
+            <a class="button button-ghost" href="{{ url_for('admin_results') }}">Results</a>
+            <a class="button button-ghost" href="{{ url_for('admin_feedback') }}">Feedback</a>
+        </div>
+    </div>
+
+    {% set topics = ['python', 'maths', 'science', 'gk'] %}
+    {% set levels = ['beginner', 'intermediate', 'advanced'] %}
+    {% set level_labels = {'beginner': 'Beginner', 'intermediate': 'Intermediate', 'advanced': 'Advanced'} %}
+    {% set any_questions = questions|length > 0 %}
+    {% if any_questions %}
+        {% for topic in topics %}
+            {% set topic_questions = questions|selectattr('topic', 'equalto', topic)|list %}
+            <section class="topic-section">
+                <div class="topic-header">
+                    <h2>{{ topic|capitalize }} ({{ topic_questions|length }} question(s))</h2>
+                </div>
+                {% if topic_questions %}
+                    {% for lvl in levels %}
+                        {% set level_questions = topic_questions|selectattr('level', 'equalto', lvl)|list %}
+                        <section class="question-section">
+                            <div class="section-title">
+                                <h3>{{ level_labels[lvl] }} Questions</h3>
+                                <span>{{ level_questions|length }} question(s)</span>
+                            </div>
+                            {% if level_questions %}
+                                <div class="question-table">
+                                    <div class="table-row header-row">
+                                        <span>#</span>
+                                        <span>Question</span>
+                                        <span>Correct</span>
+                                        <span>Action</span>
+                                    </div>
+                                    {% for question in level_questions %}
+                                        <div class="table-row">
+                                            <span>{{ loop.index }}</span>
+                                            <span class="table-question">{{ question.prompt }}</span>
+                                            <span>{{ question.correct_option }}: {% if question.correct_option == 'A' %}{{ question.option_a }}{% elif question.correct_option == 'B' %}{{ question.option_b }}{% elif question.correct_option == 'C' %}{{ question.option_c }}{% else %}{{ question.option_d }}{% endif %}</span>
+                                            <span>
+                                                <a class="button button-ghost small-button" href="{{ url_for('admin_edit', question_id=question.id) }}">Edit</a>
+                                                <a class="button button-ghost small-button" href="{{ url_for('admin_delete', question_id=question.id) }}">Delete</a>
+                                            </span>
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                            {% else %}
+                                <p class="empty-section">No {{ level_labels[lvl] }} questions yet for {{ topic|capitalize }}.</p>
+                            {% endif %}
+                        </section>
+                    {% endfor %}
+                {% else %}
+                    <p class="empty-section">No questions for {{ topic|capitalize }} yet.</p>
+                {% endif %}
+            </section>
+        {% endfor %}
+    {% else %}
+        <p>No questions found yet. Add a new question to populate the quiz.</p>
+    {% endif %}
+</section>
+{% endblock %}

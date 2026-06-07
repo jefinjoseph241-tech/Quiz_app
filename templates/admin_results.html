@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+{% block content %}
+<section class="panel admin-panel">
+    <h2>Quiz Results</h2>
+    <div class="question-table">
+        <div class="table-row header-row">
+            <span>ID</span>
+            <span>User</span>
+            <span>Score</span>
+            <span>Total</span>
+            <span>Submitted</span>
+        </div>
+        {% for r in results %}
+        <div class="table-row">
+            <span>{{ r.id }}</span>
+            <span>{{ r.username }}</span>
+            <span>{{ r.score }}</span>
+            <span>{{ r.total }}</span>
+            <span>{{ r.created_at }}</span>
+        </div>
+        {% endfor %}
+    </div>
+</section>
+{% endblock %}

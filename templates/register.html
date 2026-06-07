@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+{% block content %}
+<section class="panel auth-panel">
+    <h2>Register</h2>
+    <p>Create your account and start earning quiz scores.</p>
+    <form method="post">
+        <label>
+            Full name
+            <input type="text" name="full_name" placeholder="Your full name" required />
+        </label>
+        <label>
+            Username
+            <input type="text" name="username" placeholder="Choose a username" required />
+        </label>
+        <label>
+            Password
+            <input type="password" name="password" placeholder="Password" required />
+        </label>
+        <label>
+            Confirm Password
+            <input type="password" name="confirm" placeholder="Repeat password" required />
+        </label>
+        <button class="button button-primary" type="submit">Register</button>
+    </form>
+    <p class="small-text">Already registered? <a href="{{ url_for('login') }}">Login here</a>.</p>
+</section>
+{% endblock %}

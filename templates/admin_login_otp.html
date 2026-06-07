@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+{% block content %}
+<section class="panel auth-panel">
+    <h2>Admin OTP Verification</h2>
+    <p>An OTP has been sent to <strong>{{ email }}</strong>. Enter it below to complete admin login.</p>
+    <form method="post" action="{{ url_for('admin_login_verify') }}">
+        <label>
+            OTP Code
+            <input type="text" name="otp" placeholder="Enter the 6-digit OTP" required />
+        </label>
+        <button class="button button-primary" type="submit">Verify OTP</button>
+    </form>
+    <p class="small-text">If you did not receive an OTP, resend it by returning to the admin login page.</p>
+</section>
+{% endblock %}

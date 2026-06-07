@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+{% block content %}
+<section class="panel quiz-panel">
+    <div class="quiz-header">
+        <div>
+            <h2>Quiz Challenge{% if level %} - {{ level }}{% endif %} ({{ num_questions }} Questions)</h2>
+            <p>Answer all questions before the timer ends.</p>
+        </div>
+        <div class="timer-block">
+            <span>Time left</span>
+            <strong id="timer" data-seconds="{{ timer_seconds|default(120) }}">{{ '%02d:%02d' % (timer_seconds|default(120) // 60, timer_seconds|default(120) % 60) }}</strong>
+        </div>
+    </div>
+    <form id="quiz-form" method="post">
+        {% for question in questions %}
+        <article class="question-card">
+            <h3>Question {{ loop.index }}:</h3>
+            <p>{{ question.prompt }}</p>
+            <div class="options-grid">
+                {% for option in question.options %}
+                    <label>
+                        <input type="radio" name="{{ question.id }}" value="{{ option.display_label }}" required />
+                        <span>{{ option.display_label }}. {{ option.text }}</span>
+                    </label>
+                {% endfor %}
+            </div>
+        </article>
+        {% endfor %}
+        <div class="form-actions">
+            <button class="button button-primary" type="submit">Submit Quiz</button>
+        </div>
+    </form>
+</section>
+<script src="{{ url_for('static', filename='js/quiz.js') }}"></script>
+{% endblock %}

@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+{% block content %}
+<section class="panel result-panel">
+    <div class="result-summary">
+        <h2>Quiz Complete</h2>
+        {% if user %}
+        <p class="hero-welcome">Congrats, {{ user.full_name or user.username }}!</p>
+        {% endif %}
+        <p>You answered <strong>{{ result.score }}</strong> out of <strong>{{ result.total }}</strong> correctly.</p>
+        <div class="score-card">
+            <span class="score-value">{{ result.score }}/{{ result.total }}</span>
+        </div>
+        <a class="button button-primary" href="{{ url_for('quiz') }}">Take Another Quiz</a>
+        <a class="button button-ghost" href="{{ url_for('home') }}">Return Home</a>
+    </div>
+</section>
+{% endblock %}

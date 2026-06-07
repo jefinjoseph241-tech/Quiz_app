@@ -1,0 +1,95 @@
+{% extends 'base.html' %}
+{% block content %}
+<section class="hero-card">
+    <div class="hero-copy">
+        <p class="eyebrow">Welcome to Quizify</p>
+        <h1>Take fast, fun quizzes and test your knowledge.</h1>
+        {% if user %}
+        <p class="hero-welcome">Welcome back, {{ user.full_name or user.username }}!</p>
+        {% endif %}
+        <p class="hero-text">Register, login, and start a multiple-choice challenge with a live timer. Admins can add fresh questions from the dashboard.</p>
+        <div class="hero-actions">
+            <a class="button button-primary" href="{{ url_for('select_level') }}">Start Quiz</a>
+            <a class="button button-ghost" href="{{ url_for('register') }}">Create Account</a>
+        </div>
+    </div>
+    <div class="hero-card-panel">
+        <div class="stat-card">
+            <h2>Different level questions</h2>
+            <p>Each quiz is designed for a quick, engaging experience.</p>
+        </div>
+        <div class="stat-card">
+            <h2>Timer</h2>
+            <p>Answer before time runs out and see your score instantly.</p>
+        </div>
+        <div class="stat-card">
+            <h2>Admin Tools</h2>
+            <p>Add and manage quiz questions in a secure admin panel.</p>
+        </div>
+    </div>
+</section>
+
+<section class="feature-grid">
+    <article class="feature-card">
+        <h3>Modern interface</h3>
+        <p>Responsive layout and polished UI make the quiz experience smooth on any device.</p>
+    </article>
+    <article class="feature-card">
+        <h3>Secure authentication</h3>
+        <p>Register and login with password hashing and session management.</p>
+    </article>
+    <article class="feature-card">
+        <h3>Realtime feedback</h3>
+        <p>Submit your answers and get a result page with your score.</p>
+    </article>
+</section>
+
+<section class="feedback-card">
+    <div class="feedback-content">
+        <div class="feedback-copy">
+            <p class="eyebrow">Share your thoughts</p>
+            <h2>Feedback & Star Rating</h2>
+            <p>Help us improve the quiz experience by sending your rating and feedback.</p>
+        </div>
+        <form class="feedback-form" method="post" action="{{ url_for('submit_feedback') }}">
+            <label>
+                Your name (optional)
+                <input type="text" name="username" placeholder="Name" />
+            </label>
+            <label>
+                Email (optional)
+                <input type="email" name="email" placeholder="Email address" />
+            </label>
+            <label>
+                Star rating
+                <div class="rating-stars">
+                    <input type="radio" id="rating-5" name="rating" value="5" />
+                    <label for="rating-5" title="5 stars">★</label>
+                    <input type="radio" id="rating-4" name="rating" value="4" />
+                    <label for="rating-4" title="4 stars">★</label>
+                    <input type="radio" id="rating-3" name="rating" value="3" />
+                    <label for="rating-3" title="3 stars">★</label>
+                    <input type="radio" id="rating-2" name="rating" value="2" />
+                    <label for="rating-2" title="2 stars">★</label>
+                    <input type="radio" id="rating-1" name="rating" value="1" />
+                    <label for="rating-1" title="1 star">★</label>
+                </div>
+            </label>
+            <label>
+                Feedback message
+                <textarea name="message" rows="5" placeholder="Write your feedback here" required></textarea>
+            </label>
+            <button class="button button-primary" type="submit">Send Feedback</button>
+        </form>
+    </div>
+</section>
+
+<section class="contact-card">
+    <div class="contact-content">
+        <h2>Contact Us</h2>
+        <p>If you have questions or need support, reach out to us below.</p>
+        <p><strong>Email:</strong> <a href="mailto:jefinjoseph2005@gmail.com">jefinjoseph2005@gmail.com</a></p>
+        <p><strong>Mobile:</strong> <a href="tel:+917074158994">9074158994</a></p>
+    </div>
+</section>
+{% endblock %}

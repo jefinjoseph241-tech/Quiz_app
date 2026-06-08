@@ -14,4 +14,28 @@
         <a class="button button-ghost" href="{{ url_for('home') }}">Return Home</a>
     </div>
 </section>
+
+{% if result.review %}
+<section class="panel review-panel">
+    <div class="panel-heading">
+        <h3>Answer Review</h3>
+    </div>
+    <div class="question-table">
+        <div class="table-row header-row">
+            <span>Question</span>
+            <span>Your Answer</span>
+            <span>Correct Answer</span>
+            <span>Status</span>
+        </div>
+        {% for item in result.review %}
+            <div class="table-row">
+                <span>{{ item.prompt }}</span>
+                <span>{{ item.selected_label }}. {{ item.selected_text }}</span>
+                <span>{{ item.correct_label }}. {{ item.correct_text }}</span>
+                <span>{{ 'Correct' if item.is_correct else 'Incorrect' }}</span>
+            </div>
+        {% endfor %}
+    </div>
+</section>
+{% endif %}
 {% endblock %}

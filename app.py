@@ -65,9 +65,9 @@ def init_db():
 
             CREATE TABLE IF NOT EXISTS feedback (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
-                name TEXT NOT NULL,
-                email TEXT NOT NULL,
-                subject TEXT NOT NULL,
+                username TEXT,
+                email TEXT,
+                rating INTEGER NOT NULL DEFAULT 0,
                 message TEXT NOT NULL,
                 created_at TEXT NOT NULL
             );
@@ -116,18 +116,29 @@ def ensure_user_full_name_column(db):
 
 
 def ensure_feedback_table(db):
-    db.executescript(
-        """
-        CREATE TABLE IF NOT EXISTS feedback (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            username TEXT,
-            email TEXT,
-            rating INTEGER NOT NULL,
-            message TEXT NOT NULL,
-            created_at TEXT NOT NULL
-        );
-        """
-    )
+    cols = [r[1] for r in db.execute("PRAGMA table_info(feedback)").fetchall()]
+    if not cols:
+        db.executescript(
+            """
+            CREATE TABLE IF NOT EXISTS feedback (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                username TEXT,
+                email TEXT,
+                rating INTEGER NOT NULL DEFAULT 0,
+                message TEXT NOT NULL,
+                created_at TEXT NOT NULL
+            );
+            """
+        )
+    else:
+        if "username" not in cols:
+            db.execute("ALTER TABLE feedback ADD COLUMN username TEXT")
+        if "rating" not in cols:
+            db.execute("ALTER TABLE feedback ADD COLUMN rating INTEGER DEFAULT 0")
+        if "name" in cols and "username" in cols:
+            db.execute("UPDATE feedback SET username = name WHERE username IS NULL AND name IS NOT NULL")
+        if "subject" in cols and "rating" in cols:
+            db.execute("UPDATE feedback SET rating = CAST(subject AS INTEGER) WHERE rating IS NULL OR rating = 0")
     db.commit()
 
 
@@ -954,32 +965,50 @@ def logout():
 @app.route("/quiz", methods=["GET", "POST"])
 def quiz():
     user = get_user()
+    if user is None:
+        flash("Please log in before starting a quiz.", "warning")
+        return redirect(url_for("login"))
 
     db = get_db()
 
     # POST: grade the quiz
     if request.method == "POST":
-        question_ids = session.get("quiz_question_ids")
-        if not question_ids:
+        questions = session.get("quiz_questions")
+        if not questions:
             flash("Your quiz session expired. Please try again.", "warning")
             return redirect(url_for("quiz"))
 
-        correct_map = session.get("quiz_correct_options", {})
         score = 0
-        for qid in question_ids:
-            ans = request.form.get(str(qid))
-            if ans and correct_map.get(str(qid)) == ans:
+        review = []
+        for q in questions:
+            qid = q["id"]
+            selected_label = request.form.get(str(qid))
+            selected_option = next((opt for opt in q["options"] if opt["display_label"] == selected_label), None)
+            correct_option = next((opt for opt in q["options"] if opt.get("is_correct")), None)
+
+            selected_text = selected_option["text"] if selected_option else "No answer"
+            correct_label = correct_option["display_label"] if correct_option else ""
+            correct_text = correct_option["text"] if correct_option else ""
+
+            if selected_label and correct_label and selected_label == correct_label:
                 score += 1
 
-        total = len(question_ids)
-        # save result only for logged in users
-        if user is not None:
-            db.execute(
-                "INSERT INTO results (user_id, score, total, created_at) VALUES (?, ?, ?, ?)",
-                (user["id"], score, total, datetime.utcnow().isoformat()),
-            )
-            db.commit()
-        session["quiz_result"] = {"score": score, "total": total}
+            review.append({
+                "prompt": q["prompt"],
+                "selected_label": selected_label or "None",
+                "selected_text": selected_text,
+                "correct_label": correct_label,
+                "correct_text": correct_text,
+                "is_correct": selected_label == correct_label,
+            })
+
+        total = len(questions)
+        db.execute(
+            "INSERT INTO results (user_id, score, total, created_at) VALUES (?, ?, ?, ?)",
+            (user["id"], score, total, datetime.utcnow().isoformat()),
+        )
+        db.commit()
+        session["quiz_result"] = {"score": score, "total": total, "review": review}
         return redirect(url_for("result"))
 
     # GET: prepare a new quiz
@@ -1035,7 +1064,8 @@ def quiz():
         random.shuffle(opts)
         for idx, opt in enumerate(opts):
             opt["display_label"] = chr(ord("A") + idx)
-            if opt["label"] == q["correct_option"]:
+            opt["is_correct"] = opt["label"] == q["correct_option"]
+            if opt["is_correct"]:
                 shuffled_correct[str(q["id"])] = opt["display_label"]
         q["options"] = opts
         questions.append(q)
@@ -1043,6 +1073,7 @@ def quiz():
     timer_seconds = max(60, num_questions * 30)
     session["quiz_question_ids"] = [q["id"] for q in questions]
     session["quiz_correct_options"] = shuffled_correct
+    session["quiz_questions"] = questions
     session["quiz_level"] = level
 
     return render_template(
@@ -1067,8 +1098,11 @@ def result():
 
 @app.route("/feedback", methods=["POST"])
 def submit_feedback():
+    user = get_user()
     username = request.form.get("username", "").strip() or None
     email = request.form.get("email", "").strip() or None
+    if user is not None:
+        username = username or user.get("username")
     rating = request.form.get("rating")
     message = request.form.get("message", "").strip()
 
